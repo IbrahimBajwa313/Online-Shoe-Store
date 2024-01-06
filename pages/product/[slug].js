@@ -2,14 +2,34 @@
 import ProductDetailCrousel from '@/components/ProductDeatailCrousel'
 import RelatedProducts from '@/components/RelatedProducts'
 import Wrapper from '@/components/Wrapper'
-import React, { useState } from 'react'
+import React, { useState,useEffect } from 'react'
 import { IoMdHeartEmpty } from 'react-icons/Io'
 import { MyContext } from '@/pages/_app'
 import { useRouter } from 'next/router'
 import AddToCartNotification from '@/components/AddToCartNotification'
 
 export default function ProductDetails() {
-    
+const [Items, setItems] = useState([]);
+useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/api/getProducts');
+        const result = await response.json();
+
+        // Ensure the response has a "products" property and it's an array before setting state
+        if (result && Array.isArray(result.products)) {
+          setItems(result.products);
+        } else {
+          console.error('Invalid data structure received:', result);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
     const [isCartVisible, setIsCartVisible] = useState(false);
     const [size, setSize] = useState(undefined)
 
@@ -39,32 +59,36 @@ export default function ProductDetails() {
     const onChangePin = (e) => {
         setPin(e.target.value)
     }
-
-
+    
     return (
         <div className='w-full md:py-20'>
-            <Wrapper>
+            {console.log('asas',Items[0]?._id)}
+            {console.log(slug)}
+{
+Items.map((key)=>{
+    return <>{key?._id==slug&&<div>
+       <Wrapper>
                 <div className='flex flex-col lg:flex-row md:px-10 gap-[50px] lg:gap-[100px]'>
                     {/* left col start  */}
-                    <div className='w-full md:w-auto flex-[1.5] max-w-[500px] lg:max-w-full mx-auto lg:mx-0'><ProductDetailCrousel /> </div>
+                    <div className='w-full md:w-auto flex-[1.5] max-w-[500px] lg:max-w-full mx-auto lg:mx-0'><ProductDetailCrousel img={key.img} /> </div>
                     {/* left col end  */}
 
                     {/* Right col start  */}
                     <div className="flex-[1] py-3">
 
                         {/* Product Title */}
-                        <div className='font-bold text-[34px] mb-2'>
-                            Jorden Ratro 6 G
+                        <div className='font-bold text-[31px] mb-2'>
+                            {key.tytle}
                         </div>
 
                         {/* Product Subtitle */}
                         <div className='text-lg font-semibold mb-5'>
-                            Men&apos;s Golf Shoes
+                        {key.category}
                         </div>
 
                         {/* Price Details */}
                         <div className='text-lg font-semibold'>
-                            Price : 2500 Rs
+                            Price : {key.price} Rs
                         </div>
                         <div className='text-sm text-black/[0.5]'>
                             Incl. of Texes
@@ -159,9 +183,9 @@ export default function ProductDetails() {
 
 
                             {/* Add To Chart Button Start */}
-                            {size && service && <button
+                            {true&& <button
                                 onClick={() => {
-                                    addToCart(slug, "Jorden Ratro 6 G", 1, 2500, size, "Blue", "/product-1.webp", "Men's Golf Shoes")
+                                    addToCart(slug, key.tytle, key.availableQty, key.price, size, key.color, `/productIamages/${key.img}/thumbnail.webp`, key.category)
                                     setIsCartVisible(true);
                                     setTimeout(() => {
                                         setIsCartVisible(false);
@@ -172,10 +196,7 @@ export default function ProductDetails() {
                             </button>
                             }
 
-                            {!service && <button
-                                className='disabled:bg-gray-800 w-full  text-lg bg-gray-400  text-black border cursor-not-allowed rounded-full py-4 font-md transition-transform active:scale-95 flex items-center justify-center hover:opacity-75 mb-3'>
-                                Add To Cart
-                            </button>}
+                           
                             {/* {console.log(addToCart)} */}
                             {/* Add To Chart Button End */}
 
@@ -194,8 +215,7 @@ export default function ProductDetails() {
                                 <div className='text-lg font-bold mb-5'>
                                     Product Details
                                 </div>
-                                <div className='text-md mb-5'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Possimus reiciendis autem ab, ipsam doloribus explicabo, sit tenetur recusandae, architecto repellendus fugit ut dolor accusamus? Molestias voluptates unde aliquam officiis ratione?</div>
-                                <div className='text-md mb-5'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Possimus reiciendis autem ab, ipsam doloribus explicabo, sit tenetur recusandae, architecto repellendus fugit ut dolor accusamus? Molestias voluptates unde aliquam officiis ratione?</div>
+                                <div className='text-md mb-5'>{key.desc}</div>
                             </div>
                             {/* Descriptive Paragraph End */}
 
@@ -215,7 +235,12 @@ export default function ProductDetails() {
 
                 <RelatedProducts />
             </Wrapper>
-        </div>
+
+        </div>}</>
+})
+
+}
+                    </div>
     )
 }
 

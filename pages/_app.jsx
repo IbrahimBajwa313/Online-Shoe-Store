@@ -104,7 +104,7 @@ export default function App({ Component, pageProps }) {
 
     let newCart = cart;
      
-    if (itemCode in cart) {
+    if (itemCode in cart) { 
       delete newCart[itemCode]
     }
     
